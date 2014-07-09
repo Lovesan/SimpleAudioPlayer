@@ -25,6 +25,7 @@
 (in-package #:cl-sap)
 
 (defconstant +e-fail+ (- #x80004005 #xFFFFFFFF 1))
+(defconstant +vfw-e-wrong-state+ (- #x80040227 #xFFFFFFFF 1))
 
 (defconstant +coinit-multithreaded+ 0)
 (defconstant +coinit-apartment+ 2)

@@ -30,6 +30,7 @@
    ;; classes
    #:simple-audio-player
    #:simple-audio-player-error
+   #:simple-audio-player-wrong-state
    #:simple-audio-player-released
    
    ;; methods

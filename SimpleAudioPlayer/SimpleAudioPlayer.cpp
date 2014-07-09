@@ -40,6 +40,8 @@ private:
     {
         LONG_PTR p1, p2;
         LONG evt;
+        LONGLONG p = 0;
+
         if(_evt)
         {
             while(SUCCEEDED(_evt->GetEvent(&evt, &p1, &p2, 0)))
@@ -50,6 +52,7 @@ private:
                 case EC_USERABORT:
                 case EC_ERRORABORT:
                     _ctrl->Stop();
+                    _seek->SetPositions(&p, AM_SEEKING_AbsolutePositioning, NULL, AM_SEEKING_NoPositioning);
                     _stopped = TRUE;
                     if(evt == EC_COMPLETE && _callback)
                         _callback(this, SAP_STATE_STOPPED, _callbackData);
@@ -69,6 +72,7 @@ public:
     {
         _callback = NULL;
         _hwnd = NULL;
+        _stopped = TRUE;
     }
 
     virtual ~SAPPlayer()
@@ -127,6 +131,8 @@ public:
         _seek.Release();
         _sink.Release();
 
+        _stopped = TRUE;
+
         V_HR_ASSERT(_graph.CoCreateInstance(CLSID_FilterGraph), "Unable to create filter graph");
         
         V_HR_MSG(_graph->AddSourceFilter(filename, L"Source", &_source), "Unable to open file");
@@ -168,8 +174,6 @@ public:
             "Unable to set notify window");
 
         V_HR_ASSERT(_evt->SetNotifyFlags(0), "Unable to set notifcation flags");
-                
-        _stopped = TRUE;
         
         return hr;
     }

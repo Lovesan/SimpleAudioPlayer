@@ -33,8 +33,14 @@
   (:default-initargs :player nil :code +e-fail+)
   (:report report-sap-error))
 
-(define-condition simple-audio-player-released
+(define-condition simple-audio-player-wrong-state
     (simple-audio-player-error)
+  ()
+  (:report "Simple audio player is in wrong state")
+  (:default-initargs :code +vfw-e-wrong-state+))
+
+(define-condition simple-audio-player-released
+    (simple-audio-player-wrong-state)
   ()
   (:report "Simple audio player is released."))
 
@@ -71,19 +77,20 @@
              :type (or null function)
              :documentation
 "Callback function(of two args) which is called on player state change.")
-   (source :initform nil
+   (source :initarg :source
            :reader sap-source
            :writer set-sap-source
            :type (or null simple-string)
            :documentation "Source media path."))
-  (:default-initargs :callback nil)
+  (:default-initargs :callback nil :source nil)
   (:documentation
 "
 Audio player class.
- Constructor accepts :CALLBACK initarg, which
-  must be either NIL or function of two arguments
-    (the player and new player state),
-  which is called whenever media playback state changes.
+ Constructor accepts:
+ :CALLBACK initarg, which must be either NIL
+   or function of two arguments (the player and new player state),
+   which is called whenever media playback state changes.
+ :SOURCE initarg, which must be file path or url to source media.
 "))
 
 (defun sap-release (player)
@@ -110,29 +117,35 @@ Audio player class.
   (declare (type (or null simple-audio-player) player)
            (type (signed-byte 32) hr))
   (when (minusp hr)
-    (error 'simple-audio-player-error :player player :code hr))
+    (error (case hr 
+             (#.+vfw-e-wrong-state+ 'simple-audio-player-wrong-state)
+             (t 'simple-audio-player-error))
+           :player player
+           :code hr))
   t)
 
 (defmethod shared-initialize
     ((player simple-audio-player) slot-names &rest initargs)
   (declare (ignore slot-names initargs))
-  (with-accessors ((pointer sap-pointer)) player
-    (sap-release player)
-    (call-next-method)
-    (cffi:with-foreign-object (pp :pointer)
-      (let ((pointer (sap-pointer player))
-            (finalizer (lambda () (release-pointer pointer))))
-        (sap-check-hr nil (sap-create-player pp))
-        (setf (sp-pointer pointer) (cffi:mem-ref pp :pointer)
-              (sp-alive-p pointer) t)
-        (tg:finalize player finalizer)
-        (sap-check-hr nil (sap-invoke
-                           set-callback pointer
-                           :pointer (cffi:callback sap-callable)
-                           :pointer (cffi:null-pointer)
-                           :int))
-        (setf (ptr-object (cffi:mem-ref pp :pointer)) player)
-        player))))
+  (sap-release player)
+  (call-next-method)
+  (cffi:with-foreign-object (pp :pointer)
+    (let* ((pointer (sap-pointer player))
+           (finalizer (lambda () (release-pointer pointer))))
+      (sap-check-hr nil (sap-create-player pp))
+      (setf (sp-pointer pointer) (cffi:mem-ref pp :pointer)
+            (sp-alive-p pointer) t)
+      (tg:finalize player finalizer)
+      (sap-check-hr nil (sap-invoke
+                         set-callback pointer
+                         :pointer (cffi:callback sap-callable)
+                         :pointer (cffi:null-pointer)
+                         :int))
+      (setf (ptr-object (cffi:mem-ref pp :pointer)) player)
+      (let ((source (sap-source player)))
+        (when source
+          (sap-open player source)))
+      player)))
 
 (defmacro with-simple-audio-player ((var value) &body body)
 "
