@@ -1,0 +1,4 @@
+LIBRARY "SimpleAudioPlayer.dll"
+
+EXPORTS
+	SAPCreatePlayer

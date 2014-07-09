@@ -1,0 +1,5 @@
+*.sln -crlf -diff
+*.vcxproj -crlf -diff
+*.vcxproj.filters -crlf -diff
+*.csproj -crlf -diff
+*.res -crlf -diff
