@@ -3,3 +3,4 @@
 *.vcxproj.filters -crlf -diff
 *.csproj -crlf -diff
 *.res -crlf -diff
+*.snk -crlf -diff
