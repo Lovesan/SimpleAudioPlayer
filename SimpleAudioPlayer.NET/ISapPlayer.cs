@@ -31,5 +31,9 @@ namespace SimpleAudioPlayer.NET
         long GetPosition();
 
         void SetPosition(long position);
+
+        bool GetAutoplay();
+
+        void SetAutoplay(bool autoplay);
     }
 }

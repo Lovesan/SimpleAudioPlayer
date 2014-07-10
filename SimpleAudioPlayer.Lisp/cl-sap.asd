@@ -23,7 +23,7 @@
 ;;; DEALINGS IN THE SOFTWARE.
 
 (defsystem #:cl-sap
-  :depends-on (#:cffi #:trivial-garabage)
+  :depends-on (#:cffi #:trivial-garbage)
   :serial t
   :licence "MIT"
   :author "Dmitry Ignatiev <lovesan.ru at gmail.com>"

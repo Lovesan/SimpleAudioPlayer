@@ -50,6 +50,7 @@
    #:sap-volume
    #:sap-position
    #:sap-source
+   #:sap-autoplay
 
    ;; com initialization utils
    #:sap-init-com

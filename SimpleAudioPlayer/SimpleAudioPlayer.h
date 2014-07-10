@@ -43,6 +43,8 @@ public:
         STDMETHOD(GetDuration)(LONG *pDuration) = 0;
         STDMETHOD(GetPosition)(LONG *pPosition) = 0;
         STDMETHOD(SetPosition)(LONG position) = 0;
+        STDMETHOD(GetAutoplay)(BOOL *pAutoplay) = 0;
+        STDMETHOD(SetAutoplay)(BOOL autoplay) = 0;
     END_INTERFACE
 };
 
@@ -90,6 +92,10 @@ typedef struct ISAPPlayerVtbl
         HRESULT ( STDMETHODCALLTYPE *GetPosition)(ISAPPlayer * This, LONG *pPosition);
 
         HRESULT ( STDMETHODCALLTYPE *SetPosition)(ISAPPlayer * This, LONG position);
+
+        HRESULT ( STDMETHODCALLTYPE *GetAutoplay)(ISAPPlayer * This, BOOL *pAutoplay);
+
+        HRESULT ( STDMETHODCALLTYPE *SetAutoplay)(ISAPPlayer * This, BOOL autoplay);
         
         END_INTERFACE
     } ISAPPlayerVtbl;
@@ -143,6 +149,12 @@ typedef struct ISAPPlayerVtbl
 
 #define ISAPPlayer_SetPosition(This, position) \
     This->lpVtbl->SetPosition(This, position)
+
+#define ISAPPlayer_GetAutoplay(This, pAutoplay) \
+    This->lpVtbl->GetAutoplay(This, pAutoplay)
+
+#define ISAPPlayer_SetAutoplay(This, autoplay) \
+    This->lpVtbl->SetAutoplay(This, autoplay)
 
 #endif // __cplusplus
 

@@ -81,8 +81,13 @@
            :reader sap-source
            :writer set-sap-source
            :type (or null simple-string)
-           :documentation "Source media path."))
-  (:default-initargs :callback nil :source nil)
+           :documentation "Source media path.")
+   (autoplay :initarg :autoplay
+             :reader sap-autoplay
+             :writer set-sap-autoplay
+             :type boolean
+             :documentation "Whether to play files on opening."))
+  (:default-initargs :callback nil :source nil :autoplay nil)
   (:documentation
 "
 Audio player class.
@@ -91,6 +96,7 @@ Audio player class.
    or function of two arguments (the player and new player state),
    which is called whenever media playback state changes.
  :SOURCE initarg, which must be file path or url to source media.
+ :AUTOPLAY initarg, which designates whether to play files on opening.
 "))
 
 (defun sap-release (player)
@@ -142,6 +148,7 @@ Audio player class.
                          :pointer (cffi:null-pointer)
                          :int))
       (setf (ptr-object (cffi:mem-ref pp :pointer)) player)
+      (setf (sap-autoplay player) (sap-autoplay player))
       (let ((source (sap-source player)))
         (when source
           (sap-open player source)))
@@ -271,6 +278,7 @@ SAP-RELEASE.
   new-position)
 
 (defun (setf sap-source) (new-source player)
+"Sets source media path."
   (declare (type simple-audio-player player)
            (type (or null pathname string) new-source))
   (sap-check-alive player)
@@ -280,6 +288,17 @@ SAP-RELEASE.
              (set-sap-source nil player))
       (sap-open player new-source)))
   new-source)
+
+(defun (setf sap-autoplay) (new-autoplay player)
+"Sets whether player should start playback on media opening."
+  (declare (type simple-audio-player player)
+           (type boolean new-autoplay))
+  (sap-check-alive player)
+  (sap-check-hr player (sap-invoke set-autoplay (sap-pointer player)
+                                   :boolean new-autoplay
+                                   :int))
+  (set-sap-autoplay new-autoplay player)
+  new-autoplay)
 
 (cffi:defcallback (sap-callable :convention :stdcall)
     :void ((ptr :pointer) (state :int) (data :pointer))

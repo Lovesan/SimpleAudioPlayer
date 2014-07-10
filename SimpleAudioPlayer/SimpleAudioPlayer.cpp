@@ -23,6 +23,7 @@ private:
     LPVOID _callbackData;
     HWND _hwnd;
     BOOL _stopped;
+    BOOL _autoplay;
 
     static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {
@@ -174,6 +175,9 @@ public:
             "Unable to set notify window");
 
         V_HR_ASSERT(_evt->SetNotifyFlags(0), "Unable to set notifcation flags");
+
+        if(_autoplay)
+          V_HR(Play());
         
         return hr;
     }
@@ -373,6 +377,23 @@ public:
         V_HR(_seek->SetPositions(&p, AM_SEEKING_AbsolutePositioning, NULL, AM_SEEKING_NoPositioning));
 
         return hr;
+    }
+
+    STDMETHODIMP GetAutoplay(BOOL *pAutoplay)
+    {
+        if(!pAutoplay)
+          return E_POINTER;
+
+        *pAutoplay = _autoplay;
+
+        return S_OK;
+    }
+
+    STDMETHODIMP SetAutoplay(BOOL autoplay)
+    {
+        _autoplay = autoplay;
+
+        return S_OK;
     }
 };
 

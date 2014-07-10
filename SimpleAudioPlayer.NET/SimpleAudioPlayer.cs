@@ -13,14 +13,19 @@ namespace SimpleAudioPlayer.NET
         private bool _disposed;
         private string _source;
 
-        public SimpleAudioPlayer()
+        public SimpleAudioPlayer(bool autoplay)
         {
             _player = SAPCreatePlayer();
             _delegate = OnStateChanged;
             _player.SetCallback(
                 Marshal.GetFunctionPointerForDelegate(_delegate),
                 IntPtr.Zero);
+            _player.SetAutoplay(autoplay);
         }
+
+        public SimpleAudioPlayer()
+            : this(false)
+        { }
 
         ~SimpleAudioPlayer()
         {
@@ -109,6 +114,12 @@ namespace SimpleAudioPlayer.NET
         {
             get { return _source; }
             set { Open(value); }
+        }
+
+        public bool Autoplay
+        {
+            get { return _player.GetAutoplay(); }
+            set { _player.SetAutoplay(value); }
         }
 
         public event SimpleAudioPlayerEventHandler StateChanged;

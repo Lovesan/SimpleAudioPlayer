@@ -68,7 +68,9 @@
   (set-volume :pointer)
   (get-duration :pointer)
   (get-position :pointer)
-  (set-position :pointer))
+  (set-position :pointer)
+  (get-autoplay :pointer)
+  (set-autoplay :pointer))
 
 (declaim (inline co-initialize-ex))
 (cffi:defcfun ("CoInitializeEx"
